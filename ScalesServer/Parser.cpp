@@ -3,7 +3,7 @@
 QByteArray Parser::lastData = QByteArray();
 int Parser::lastWeight = 0;
 
-int Parser::Parse(const QByteArray& data)
+int Parser::ParseXK3(const QByteArray& data)
 //3d 2d 30 30 31 33 32 30 28 6b 67 29 0d 0a 
 {
 	lastData += data;

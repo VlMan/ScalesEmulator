@@ -16,7 +16,7 @@ ScalesServer::ScalesServer(QWidget *parent)
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
         QByteArray ba = dynamic_cast<QTcpSocket*>(sender())->readAll();
         if (ui->chk_parse_data->isChecked())
-            server->WriteToAllClient(Parser::Parse(ba));
+            server->WriteToAllClient(Parser::ParseXK3(ba));
         else
             server->WriteToAllClient(ba);
         ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));

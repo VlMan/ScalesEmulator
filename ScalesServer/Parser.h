@@ -12,5 +12,5 @@ class Parser :
     static int lastWeight;
 
 public:
-    static int Parse(const QByteArray& ba);
+    static int ParseXK3(const QByteArray& ba);
 };
