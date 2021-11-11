@@ -9,6 +9,7 @@ ScalesServer::ScalesServer(QWidget *parent)
     socWeight->connectToHost("192.168.0.211", 9761);
 
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
-        server->WriteToAllClient(QByteArray(QString::number(Parser::Parse(dynamic_cast<QTcpSocket*>(sender())->readAll())).toLocal8Bit()));
+        //server->WriteToAllClient(QByteArray(QString::number(Parser::Parse(dynamic_cast<QTcpSocket*>(sender())->readAll())).toLocal8Bit()));
+        server->WriteToAllClient(dynamic_cast<QTcpSocket*>(sender())->readAll());
         });
 }
