@@ -40,3 +40,9 @@ void ScalesTcp::WriteToAllClient(const QByteArray& ba)
 	for (const auto& value : listClient.values())
 		WriteToClient(value, ba);
 }
+
+void ScalesTcp::WriteToAllClient(const int ba)
+{
+	for (const auto& value : listClient.values())
+		WriteToClient(value, QString::number(ba).toLocal8Bit());
+}

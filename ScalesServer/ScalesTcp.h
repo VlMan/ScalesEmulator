@@ -55,5 +55,6 @@ public:
     QString LastError() const { return last_error; }
 
     void WriteToAllClient(const QByteArray& ba);
+    void WriteToAllClient(const int ba);
 };
 

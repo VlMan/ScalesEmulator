@@ -12,9 +12,12 @@ ScalesServer::ScalesServer(QWidget *parent)
     ui->le_port_server->setValidator(intValidator);
 
     ui->le_port_server->setText(QString::number(server->GetPort()));
+
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
-        //server->WriteToAllClient(QByteArray(QString::number(Parser::Parse(dynamic_cast<QTcpSocket*>(sender())->readAll())).toLocal8Bit()));
-        server->WriteToAllClient(dynamic_cast<QTcpSocket*>(sender())->readAll());
+        if (ui->chk_parse_data->isChecked())
+            server->WriteToAllClient(Parser::Parse(dynamic_cast<QTcpSocket*>(sender())->readAll()));
+        else
+            server->WriteToAllClient(dynamic_cast<QTcpSocket*>(sender())->readAll());
         });
 
     connect(ui->btn_connect_scales, &QPushButton::clicked, this, [&]() {
