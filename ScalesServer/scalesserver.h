@@ -16,4 +16,12 @@ private:
     Ui::ScalesServerClass *ui;
     QScopedPointer<QTcpSocket> socWeight;
     QScopedPointer<ScalesTcp> server;
+
+    QStringList GetListScales() const {
+        return {
+            "XK3",
+            "Zemic A9",
+            "T7E"
+        };
+    }
 };
