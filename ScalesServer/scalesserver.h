@@ -19,6 +19,7 @@ private:
 
     QStringList GetListScales() const {
         return {
+            "",
             "XK3",
             "Zemic A9",
             "T7E"

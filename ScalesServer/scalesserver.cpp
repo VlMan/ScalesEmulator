@@ -12,11 +12,22 @@ ScalesServer::ScalesServer(QWidget *parent)
     ui->le_port_server->setValidator(intValidator);
 
     ui->le_port_server->setText(QString::number(server->GetPort()));
+    ui->cbox_scales_type->addItems(GetListScales());
 
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
         QByteArray ba = dynamic_cast<QTcpSocket*>(sender())->readAll();
         if (ui->chk_parse_data->isChecked())
-            server->WriteToAllClient(Parser::ParseXK3(ba));
+        {
+            if (ui->cbox_scales_type->currentText() == "")
+                server->WriteToAllClient(ba);
+            else if (ui->cbox_scales_type->currentText() == "XK3")
+                server->WriteToAllClient(Parser::ParseXK3(ba));
+            else if (ui->cbox_scales_type->currentText() == "Zemic A9")
+                server->WriteToAllClient(Parser::ParseZemicA9(ba));
+            else if (ui->cbox_scales_type->currentText() == "T7E")
+                server->WriteToAllClient(Parser::ParseT7E(ba));
+
+        }
         else
             server->WriteToAllClient(ba);
         ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
@@ -31,6 +42,8 @@ ScalesServer::ScalesServer(QWidget *parent)
         {
             ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Socket connect\n");
         }
+        else
+            ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Socket not connect - " + socWeight->errorString() + "\n");
         });
 
     connect(ui->btn_disconnect_scales, &QPushButton::clicked, this, [&]() {
