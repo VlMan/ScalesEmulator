@@ -10,10 +10,10 @@ class ScalesServer : public QMainWindow
 
 public:
     ScalesServer(QWidget *parent = Q_NULLPTR);
-    ~ScalesServer() {}
+    ~ScalesServer() { delete ui; }
 
 private:
-    Ui::ScalesServerClass ui;
+    Ui::ScalesServerClass *ui;
     QScopedPointer<QTcpSocket> socWeight;
     QScopedPointer<ScalesTcp> server;
 };
