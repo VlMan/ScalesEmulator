@@ -7,7 +7,7 @@ int Parser::ParseXK3(const QByteArray& data)
 //3d 2d 30 30 31 33 32 30 28 6b 67 29 0d 0a 
 {
 	lastData += data;
-	if (lastData.length() >= 14 && lastData.endsWith('\n'))
+	if (lastData.length() >= 14 && lastData.endsWith("(kg)"))
 	{
 		QByteArray ba = lastData;
 		char* chararray = ba.data();
@@ -20,6 +20,7 @@ int Parser::ParseXK3(const QByteArray& data)
 			*(char*)endPtr = '\0';
 			lastWeight = atoi(startPtr);
 		}
+		lastData.clear();
 	}
 	else if (lastData.length() > 29)
 	{

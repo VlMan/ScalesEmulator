@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QTimer>
+
 #include "ui_scalesserver.h"
 #include "ScalesTcp.h"
 
@@ -16,6 +18,11 @@ private:
     Ui::ScalesServerClass *ui;
     QScopedPointer<QTcpSocket> socWeight;
     QScopedPointer<ScalesTcp> server;
+    QScopedPointer<QTimer> t_SendData;
+
+    QString dataToSend;
+
+    void DisconnectSocketScales();
 
     QStringList GetListScales() const {
         return {

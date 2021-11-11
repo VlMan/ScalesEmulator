@@ -2,18 +2,42 @@
 
 #include <QValidator>
 #include <QTime>
+#include <QSpinBox>
 
 ScalesServer::ScalesServer(QWidget *parent)
-    : QMainWindow(parent), socWeight(new QTcpSocket(this)), server(new ScalesTcp(3331)), ui(new Ui::ScalesServerClass)
+    : QMainWindow(parent), socWeight(new QTcpSocket(this)), server(new ScalesTcp(3331)), ui(new Ui::ScalesServerClass), dataToSend(""), t_SendData(new QTimer(this))
 {
     ui->setupUi(this);
 
     QIntValidator* intValidator = new QIntValidator(0, 65535, this);
     ui->le_port_scales->setValidator(intValidator);
+    ui->le_port_scales->setText("9761");
     ui->le_port_server->setValidator(intValidator);
-
+    ui->sp_interval_send->setMinimum(0);
+    ui->sp_interval_send->setMaximum(100000);
+    ui->le_ip_scales->setText("127.0.0.1");
     ui->le_port_server->setText(QString::number(server->GetPort()));
     ui->cbox_scales_type->addItems(GetListScales());
+    t_SendData->start(1000);
+    ui->sp_interval_send->setValue(1000);
+
+    connect(ui->sp_interval_send, &QSpinBox::valueChanged, this, [=](int value) {
+        t_SendData->stop();
+        t_SendData->setInterval(value);
+        t_SendData->start();
+        });
+
+    connect(ui->le_data_to_send, &QLineEdit::textChanged, this, [=](QString str) {
+        dataToSend = str;
+        });
+
+    connect(t_SendData.data(), &QTimer::timeout, this, [=]() {
+        if (ui->chk_send_data->isChecked() && !dataToSend.isEmpty())
+        {
+            server->WriteToAllClient(dataToSend.toLocal8Bit());
+            ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] Send - ") + dataToSend);
+        }
+        });
 
     connect(ui->cbox_scales_type, &QComboBox::currentTextChanged, this, [=](QString text) { // При переключении вкладки обнуляем вес
         Q_UNUSED(text);
@@ -22,12 +46,13 @@ ScalesServer::ScalesServer(QWidget *parent)
 
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
         QByteArray ba = dynamic_cast<QTcpSocket*>(sender())->readAll();
+        ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Receipt - " + QString(ba));
         if (ui->chk_parse_data->isChecked())
         {
             if (ui->cbox_scales_type->currentText() == "") // Не выбраны весы - шлём сырые данные
             {
                 server->WriteToAllClient(ba);
-                ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
+                ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] Send - ") + QString(ba));
             }
             else
             {
@@ -40,19 +65,18 @@ ScalesServer::ScalesServer(QWidget *parent)
                     parsedData = Parser::ParseT7E(ba);
 
                 server->WriteToAllClient(parsedData);
-                ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString::number(parsedData));
+                ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] Send - ") + QString::number(parsedData));
             }
         }
         else
         {
             server->WriteToAllClient(ba);
-            ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
+            ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] Send - ") + QString(ba));
         }
         });
 
     connect(ui->btn_connect_scales, &QPushButton::clicked, this, [&]() {
-        if (socWeight->state() == QAbstractSocket::ConnectedState)
-            socWeight->disconnectFromHost();
+        DisconnectSocketScales();
         socWeight->connectToHost(ui->le_ip_scales->text(), ui->le_port_scales->text().toInt());
         socWeight->waitForConnected(10000);
         if (socWeight->state() == QAbstractSocket::ConnectedState)
@@ -64,11 +88,7 @@ ScalesServer::ScalesServer(QWidget *parent)
         });
 
     connect(ui->btn_disconnect_scales, &QPushButton::clicked, this, [&]() {
-        if (socWeight->state() == QAbstractSocket::ConnectedState)
-        {
-            socWeight->disconnectFromHost();
-            ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Socket disconnect\n");
-        }
+        DisconnectSocketScales();
         });
 
     connect(ui->btn_start_server, &QPushButton::clicked, this, [&]() {
@@ -86,4 +106,13 @@ ScalesServer::ScalesServer(QWidget *parent)
             ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Server stop\n");
         }
         });
+}
+
+void ScalesServer::DisconnectSocketScales()
+{
+    if (socWeight->state() == QAbstractSocket::ConnectedState)
+    {
+        socWeight->disconnectFromHost();
+        ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Socket disconnect\n");
+    }
 }
