@@ -24,11 +24,19 @@ ScalesServer::ScalesServer(QWidget *parent)
         if (socWeight->state() == QAbstractSocket::ConnectedState)
             socWeight->disconnectFromHost();
         socWeight->connectToHost(ui->le_ip_scales->text(), ui->le_port_scales->text().toInt());
+        socWeight->waitForConnected(10000);
+        if (socWeight->state() == QAbstractSocket::ConnectedState)
+        {
+            ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Socket connect\n");
+        }
         });
 
     connect(ui->btn_disconnect_scales, &QPushButton::clicked, this, [&]() {
         if (socWeight->state() == QAbstractSocket::ConnectedState)
+        {
             socWeight->disconnectFromHost();
+            ui->brs_log->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Socket disconnect\n");
+        }
         });
 
     connect(ui->btn_start_server, &QPushButton::clicked, this, [&]() {
