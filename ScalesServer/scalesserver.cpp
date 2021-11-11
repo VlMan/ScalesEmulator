@@ -14,10 +14,12 @@ ScalesServer::ScalesServer(QWidget *parent)
     ui->le_port_server->setText(QString::number(server->GetPort()));
 
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
+        QByteArray ba = dynamic_cast<QTcpSocket*>(sender())->readAll();
         if (ui->chk_parse_data->isChecked())
-            server->WriteToAllClient(Parser::Parse(dynamic_cast<QTcpSocket*>(sender())->readAll()));
+            server->WriteToAllClient(Parser::Parse(ba));
         else
-            server->WriteToAllClient(dynamic_cast<QTcpSocket*>(sender())->readAll());
+            server->WriteToAllClient(ba);
+        ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
         });
 
     connect(ui->btn_connect_scales, &QPushButton::clicked, this, [&]() {
