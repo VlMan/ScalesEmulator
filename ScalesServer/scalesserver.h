@@ -21,6 +21,7 @@ private:
     QScopedPointer<QTimer> t_SendData;
 
     QString dataToSend;
+    QString currentScales;
 
     void DisconnectSocketScales();
 

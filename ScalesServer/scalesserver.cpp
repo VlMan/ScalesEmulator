@@ -5,7 +5,7 @@
 #include <QSpinBox>
 
 ScalesServer::ScalesServer(QWidget *parent)
-    : QMainWindow(parent), socWeight(new QTcpSocket(this)), server(new ScalesTcp(3331)), ui(new Ui::ScalesServerClass), dataToSend(""), t_SendData(new QTimer(this))
+    : QMainWindow(parent), socWeight(new QTcpSocket(this)), server(new ScalesTcp(3331)), ui(new Ui::ScalesServerClass), dataToSend(""), t_SendData(new QTimer(this)), currentScales("")
 {
     ui->setupUi(this);
 
@@ -40,7 +40,7 @@ ScalesServer::ScalesServer(QWidget *parent)
         });
 
     connect(ui->cbox_scales_type, &QComboBox::currentTextChanged, this, [=](QString text) { // При переключении вкладки обнуляем вес
-        Q_UNUSED(text);
+        currentScales = text;
         Parser::Zeroing();
         });
 
@@ -57,11 +57,11 @@ ScalesServer::ScalesServer(QWidget *parent)
             else
             {
                 int parsedData = 0;
-                if (ui->cbox_scales_type->currentText() == "XK3")
+                if (currentScales == "XK3")
                     parsedData = Parser::ParseXK3(ba);
-                else if (ui->cbox_scales_type->currentText() == "Zemic A9")
+                else if (currentScales == "Zemic A9")
                     parsedData = Parser::ParseZemicA9(ba);
-                else if (ui->cbox_scales_type->currentText() == "T7E")
+                else if (currentScales == "T7E")
                     parsedData = Parser::ParseT7E(ba);
 
                 server->WriteToAllClient(parsedData);
