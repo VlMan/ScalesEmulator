@@ -1,6 +1,7 @@
 #include "scalesserver.h"
 
 #include <QValidator>
+#include <QTime>
 
 ScalesServer::ScalesServer(QWidget *parent)
     : QMainWindow(parent), socWeight(new QTcpSocket(this)), server(new ScalesTcp(3331)), ui(new Ui::ScalesServerClass)
@@ -14,11 +15,16 @@ ScalesServer::ScalesServer(QWidget *parent)
     ui->le_port_server->setText(QString::number(server->GetPort()));
     ui->cbox_scales_type->addItems(GetListScales());
 
+    connect(ui->cbox_scales_type, &QComboBox::currentTextChanged, this, [=](QString text) { // При переключении вкладки обнуляем вес
+        Q_UNUSED(text);
+        Parser::Zeroing();
+        });
+
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
         QByteArray ba = dynamic_cast<QTcpSocket*>(sender())->readAll();
         if (ui->chk_parse_data->isChecked())
         {
-            if (ui->cbox_scales_type->currentText() == "")
+            if (ui->cbox_scales_type->currentText() == "") // Не выбраны весы - шлём сырые данные
             {
                 server->WriteToAllClient(ba);
                 ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
