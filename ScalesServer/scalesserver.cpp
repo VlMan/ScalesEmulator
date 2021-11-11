@@ -19,18 +19,29 @@ ScalesServer::ScalesServer(QWidget *parent)
         if (ui->chk_parse_data->isChecked())
         {
             if (ui->cbox_scales_type->currentText() == "")
+            {
                 server->WriteToAllClient(ba);
-            else if (ui->cbox_scales_type->currentText() == "XK3")
-                server->WriteToAllClient(Parser::ParseXK3(ba));
-            else if (ui->cbox_scales_type->currentText() == "Zemic A9")
-                server->WriteToAllClient(Parser::ParseZemicA9(ba));
-            else if (ui->cbox_scales_type->currentText() == "T7E")
-                server->WriteToAllClient(Parser::ParseT7E(ba));
+                ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
+            }
+            else
+            {
+                int parsedData = 0;
+                if (ui->cbox_scales_type->currentText() == "XK3")
+                    parsedData = Parser::ParseXK3(ba);
+                else if (ui->cbox_scales_type->currentText() == "Zemic A9")
+                    parsedData = Parser::ParseZemicA9(ba);
+                else if (ui->cbox_scales_type->currentText() == "T7E")
+                    parsedData = Parser::ParseT7E(ba);
 
+                server->WriteToAllClient(parsedData);
+                ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString::number(parsedData));
+            }
         }
         else
+        {
             server->WriteToAllClient(ba);
-        ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
+            ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + QString(ba));
+        }
         });
 
     connect(ui->btn_connect_scales, &QPushButton::clicked, this, [&]() {
