@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>801</width>
-    <height>511</height>
+    <width>525</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,9 +109,6 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QTextBrowser" name="brs_log"/>
-      </item>
       <item row="1" column="0">
        <widget class="QFrame" name="frame">
         <property name="sizePolicy">
@@ -210,6 +207,12 @@
       <item row="1" column="1">
        <widget class="QTextBrowser" name="brs_log_scales"/>
       </item>
+      <item row="1" column="2">
+       <widget class="QTextBrowser" name="brs_log_scales_out"/>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QTextBrowser" name="brs_log"/>
+      </item>
      </layout>
     </item>
    </layout>
@@ -219,7 +222,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>801</width>
+     <width>525</width>
      <height>21</height>
     </rect>
    </property>
