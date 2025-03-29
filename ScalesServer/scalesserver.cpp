@@ -46,7 +46,12 @@ ScalesServer::ScalesServer(QWidget *parent)
 
     connect(socWeight.data(), &QTcpSocket::readyRead, this, [&]() {
         QByteArray ba = dynamic_cast<QTcpSocket*>(sender())->readAll();
-        ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Receipt - " + QString(ba));
+        QString rawDataString;
+
+        for (char byte : ba) {
+            rawDataString += QString("\\x%1").arg(static_cast<unsigned char>(byte), 2, 16, QChar('0'));
+        }
+        ui->brs_log_scales->append(QTime::currentTime().toString("[hh.mm.ss.zzz] ") + "Receipt - " + rawDataString);
         if (ui->chk_parse_data->isChecked())
         {
             if (ui->cbox_scales_type->currentText() == "") // Не выбраны весы - шлём сырые данные
